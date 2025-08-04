@@ -653,3 +653,236 @@ application {
     mainClass = 'com.example.app.App'
 }
 ```
+
+---
+
+## Gradle Plugins
+Plugins are the primary mechanism for extending Gradle's capabilities. They encapsulate reusable build logic and configurations.
+
+### Applying Standard Plugins
+Gradle comes with a rich set of standard plugins
+
+#### Applying plugins
+- `plugins {}` **block (recommended)**: For core Gradle plugins and modern plugin application
+  ```groovy
+  plugins {
+      id 'java'
+      id 'war'
+      id 'org.springframework.boot' version '3.2.0' // Third-party plugin
+  }
+  ```
+  
+  ```kotlin
+  plugins {
+      java
+      war
+      id("org.springframework.boot") version "3.2.0" // Third-party plugin
+  }
+  ```
+
+- `apply plugin: 'plugin-id'` **(legacy)**: Still works but less preferred
+  ```groovy
+  apply plugin: 'java'
+  apply plugin: 'application'
+  ```
+  
+  ```kotlin
+  apply(plugin = "java")
+  apply(plugin = "application")
+  ```
+
+#### Common Standard Plugins:
+- `java`: Adds Java compilation, testing, and JAR creation capabilities.
+- `application`: Adds the ability to create runnable JARs and start scripts for Java applications.
+- `library`: Similar to `java`, but optimized for building reusable Java libraries.
+- `war`: Adds support for building Web Application Archive (WAR) files.
+- `java-library`: Provides the `api` and `implementation` configurations, best for libraries.
+- `groovy`, `kotlin`: For building Groovy and Kotlin projects respectively.
+
+### Using Third-Party Plugins
+Many open-source projects and frameworks provide Gradle plugins to simplify integration. <br>
+Examples include:
+- `spring-boot`: From Spring Boot, for building executable Spring Boot JARs/WARs.
+- `android`: The official Android Gradle Plugin, essential for Android development.
+- `jacoco`: For code coverage analysis.
+- `sonarqube`: For integrating with SonarQube for code quality analysis.
+
+### Creating Custom Plugins
+For highly specific or reusable build logic, you can create your own custom plugins. This is typically done in three ways:
+#### **In-line in** `build.gradle`:
+For very small, project-specific logic (not recommended for reusability).
+```groovy
+// Not a true plugin, but a custom task
+task customTask {
+    doLast {
+        println 'Executing custom logic!'
+    }
+}
+```
+
+#### 2. **Using** `buildSrc/`:
+The recommended way to encapsulate reusable build logic for a single multi-module project. `buildSrc` is treated as an included build by Gradle, and its contents are compiled and made available to all projects in the build.
+- Create `buildSrc/src/main/groovy` (or `kotlin`) and define your plugin classes.
+- Example: `buildSrc/src/main/groovy/com/example/MyCustomPlugin.groovy`
+  ```groovy
+  package com.example
+  
+  import org.gradle.api.Plugin
+  import org.gradle.api.Project
+  
+  class MyCustomPlugin implements Plugin<Project> {
+      void apply(Project project) {
+          project.task('helloPlugin') {
+              doLast {
+                  println "Hello from MyCustomPlugin!"
+              }
+          }
+      }
+  }
+  ```
+- Then apply it in your `build.gradle`: `apply plugin: com.example.MyCustomPlugin` or `id 'my-custom-plugin'` if configured appropriately.
+
+#### 3. **Standard Plugin Project**:
+For plugins intended to be published to a repository (e.g., Maven Central, Gradle Plugin Portal) and shared across multiple, independent projects. This involves creating a separate Gradle project for your plugin.
+
+### Managing Plugin Versions and Plugin DSL
+#### `plugins {}` **block for vesions**:
+The `plugins {}` block is the preferred way to declare plugin dependencies and their versions. This automatically adds the plugin to classpath.
+```groovy
+plugins {
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+```
+
+```kotlin
+plugins {
+    id("org.springframework.boot") version "3.2.0"
+    id("io.spring.dependency-management") version "1.1.4"
+}
+```
+
+#### **Plugin DSL**:
+Many plugins introduce their own DSLs (Domain Specific Languages) to configure their behavior. For example, the `java` plugin adds a `java {}` block, and the `application` plugin adds an `application {}` block.
+```groovy
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass = 'com.example.MyApp'
+}
+```
+
+```kotlin
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass.set("com.example.MyApp")
+}
+```
+
+---
+
+## Build Configuration and Customization
+Gradle offers various ways to configure and customize your build logic.
+
+### Writing Reusable Build Logic Using `ext` Properties
+The ext (extra) properties are a simple way to define custom properties that can be accessed throughout your build script.
+
+```groovy
+ext {
+    springBootVersion = '3.2.0'
+    junitVersion = '5.10.0'
+    myCustomMessage = 'Hello from extra properties!'
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+}
+
+task printMessage {
+    doLast {
+        println myCustomMessage
+    }
+}
+```
+
+```kotlin
+extra["springBootVersion"] = "3.2.0"
+extra["junitVersion"] = "5.10.0"
+extra["myCustomMessage"] = "Hello from extra properties!"
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web:${extra["springBootVersion"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${extra["junitVersion"]}")
+}
+
+tasks.register("printMessage") {
+    doLast {
+        println(extra["myCustomMessage"])
+    }
+}
+```
+
+#### Using `buildSrc/` for Managing Build Logic in Code
+As mentioned in the "Creating Custom Plugins" section, buildSrc/ is an excellent place to put reusable build logic written in Groovy or Kotlin. This includes:
+- **Custom plugins**: For encapsulating complex build logic.
+- **Custom tasks**: When a specific type of task is needed across multiple subprojects.
+- **Dependency versions**: Centralizing dependency versions (though version catalogs are now preferred).
+- **Helper functions**: Any Groovy/Kotlin code that helps streamline your build scripts
+
+By putting code in `buildSrc`, you get:
+- **IDE support**: Autocompletion, refactoring, and static analysis.
+- **Testability**: You can write unit tests for your build logic.
+- **Better organization**: Keeps your build.gradle files cleaner
+
+#### Working with `gradle.properties` and Environment Variables
+- `gradle.properties`: A simple key-value file for project-specific properties that don't change often.
+  - **Project-level**: gradle.properties in the project root.
+  - **Global-level**: ~/.gradle/gradle.properties (for user-wide settings).
+  ```properties
+  # gradle.properties
+  org.gradle.daemon=true
+  org.gradle.parallel=true
+  my.app.version=1.0.0
+  ```
+  Access in `build.gradle` (Groovy):
+  ```java
+  version = project.findProperty('my.app.version') ?: 'unknown'
+  ```
+  Access in `build.gradle.kts` (Kotlin):
+  ```java
+  version = project.findProperty("my.app.version") ?: "unknown"
+  ```
+- **Environment Variables**: Useful for sensitive information (like API keys) or dynamic settings in CI/CD.
+  Access in `build.gradle` (Groovy):
+  ```groovy
+  def apiKey = System.getenv('MY_API_KEY')
+  if (apiKey) {
+      println "API Key found: $apiKey"
+  } else {
+      println "API Key not set."
+  }
+  ```
+  Access in `build.gradle.kts` (Kotlin):
+  ```kotlin
+  val apiKey = System.getenv("MY_API_KEY")
+  if (apiKey != null) {
+      println("API Key found: $apiKey")
+  } else {
+      println("API Key not set.")
+  }
+  ```
+  
+#### Using `application.properties`, `application.yml`, or External Configs for Spring Boot Projects
+While `gradle.properties` and environment variables are for Gradle build configuration, Spring Boot applications use their own external configuration files (`application.properties`, `application.yml`) or externalized configurations for runtime settings. Gradle handles building the Spring Boot application, but it doesn't directly configure its runtime behavior from `build.gradle`.
+
+You typically manage these application-specific configurations within the `src/main/resources` directory or through Spring Boot's externalized configuration mechanisms.
+
+---
