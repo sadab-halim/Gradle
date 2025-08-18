@@ -886,3 +886,149 @@ While `gradle.properties` and environment variables are for Gradle build configu
 You typically manage these application-specific configurations within the `src/main/resources` directory or through Spring Boot's externalized configuration mechanisms.
 
 ---
+
+## Gradle Commands Reference
+### Build Lifecycle Commands
+
+| Command | Description |
+|---------|-------------|
+| `build` | Compiles, tests, and assembles the project |
+| `assemble` | Assembles outputs without running tests |
+| `clean` | Deletes build directory |
+| `check` | Runs all checks, including tests |
+| `buildNeeded` | Builds this project and all required projects |
+| `buildDependents` | Builds this project and all dependent projects |
+
+
+## Testing Commands
+
+| Command | Description |
+|---------|-------------|
+| `test` | Runs unit tests using the test framework |
+| `testDebugUnitTest` | Runs debug unit tests (Android) |
+| `connectedAndroidTest` | Runs Android instrumentation tests |
+| `jacocoTestReport` | Generates code coverage reports (if configured) |
+
+
+## Dependency Management
+
+| Command | Description |
+|---------|-------------|
+| `dependencies` | Shows dependency tree for all configurations |
+| `dependencyInsight` | Provides insight into a specific dependency |
+| `buildEnvironment` | Displays the build script dependencies |
+| `resolveAllDependencies` | Resolves all dependencies (custom task required) |
+
+
+## Publishing / Deployment
+
+| Command | Description |
+|---------|-------------|
+| `publish` | Publishes to a repository (if configured) |
+| `uploadArchives` | Uploads to repository (deprecated in favor of publish) |
+
+
+## Project Information and Diagnostics
+
+| Command | Description |
+|---------|-------------|
+| `projects` | Lists all sub-projects |
+| `tasks` | Lists available tasks |
+| `properties` | Displays project properties |
+| `help` | Provides help on using Gradle |
+| `--version` | Displays Gradle version |
+| `--scan` | Publishes a build scan to gradle.com |
+
+
+## Configuration & Initialization
+
+| Command | Description |
+|---------|-------------|
+| `init` | Initializes a new Gradle project |
+| `wrapper` | Generates Gradle Wrapper scripts |
+| `gradlew / gradlew.bat` | Wrapper scripts to run Gradle without install |
+
+
+## Continuous Build
+
+| Command | Description |
+|---------|-------------|
+| `build --continuous` | Rebuilds automatically on source changes |
+
+
+## Cleaning and Housekeeping
+
+| Command | Description |
+|---------|-------------|
+| `clean` | Deletes the build directory |
+| `--refresh-dependencies` | Forces dependency resolution from remote |
+| `cleanBuildCache` | Clears the build cache (custom task) |
+
+
+## Authentication & Credentials
+
+| Command | Description |
+|---------|-------------|
+| `--credentials` | Provide credentials for publishing |
+| `gradle.properties` | Store secure credentials |
+
+
+## Debugging and Performance
+
+| Command | Description |
+|---------|-------------|
+| `--debug` | Logs detailed debugging output |
+| `--info` | Logs intermediate info |
+| `--stacktrace` | Prints stack trace on error |
+| `--profile` | Generates a profile report |
+
+
+## Parallel and Daemon Execution
+
+| Command | Description |
+|---------|-------------|
+| `--parallel` | Enables parallel execution of tasks |
+| `--daemon` | Uses the Gradle daemon |
+| `--no-daemon` | Disables the daemon |
+
+
+## Android Specific
+
+| Command | Description |
+|---------|-------------|
+| `assembleDebug` | Builds the debug APK |
+| `assembleRelease` | Builds the release APK |
+| `installDebug` | Installs the debug APK to a connected device |
+| `uninstallAll` | Uninstalls all variants |
+
+
+## Additional / Plugin-Based Commands
+
+| Command | Description |
+|---------|-------------|
+| `init --type` | Specifies the type of project (java-application, etc.) |
+| `doctor` | Diagnoses issues with Gradle builds (Doctor Plugin) |
+| `wrapper --gradle-version` | Sets a specific Gradle version in the wrapper |
+| `run` | Runs a Java application (Java Plugin) |
+| `bootRun` | Starts a Spring Boot app |
+| `bootJar` | Builds an executable Spring Boot JAR |
+| `distZip / distTar` | Packages application as ZIP/TAR |
+| `javadoc` | Generates JavaDoc |
+| `jar` | Creates a JAR file |
+| `eclipse / idea` | Generates IDE project files |
+| `apiDependenciesInsight` | Detailed API dependency info (Kotlin) |
+| `kaptKotlin` | Kotlin annotation processing |
+| `kotlinCompile` | Compiles Kotlin code |
+
+
+## Advanced Flags and CLI Options
+
+| Command | Description |
+|---------|-------------|
+| `--offline` | Disables network access for dependency resolution |
+| `--build-cache / --no-build-cache` | Enables/disables build cache |
+| `--configuration-cache` | Uses experimental configuration cache |
+| `--warning-mode` | Controls warning verbosity (all, none, summary) |
+| `-Dproperty=value` | Set system properties |
+| `-PmyProp=value` | Set project properties |
+
